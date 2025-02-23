@@ -34,11 +34,6 @@ public class SecurityUtil {
     @Value("${huy.jwt.token-validity-in-seconds}")
     private long jwtExpiration;
 
-    private SecretKey getSecretKey() {
-        byte[] keyBytes = Base64.from(jwtKey).decode();
-        return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
-    }
-
     public String createToken(Authentication authentication) {
         Instant now = Instant.now();
         Instant validity = now.plus(this.jwtExpiration, ChronoUnit.SECONDS);

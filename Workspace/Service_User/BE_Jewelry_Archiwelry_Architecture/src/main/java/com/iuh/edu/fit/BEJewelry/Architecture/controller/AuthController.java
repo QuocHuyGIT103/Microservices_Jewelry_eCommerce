@@ -41,7 +41,7 @@ public class AuthController {
         res.setAccessToken(access_token);
 
         // nạp thông tin (nếu xử lý thành công) vào SecurityContext
-        // SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return ResponseEntity.ok().body(res);
     }
