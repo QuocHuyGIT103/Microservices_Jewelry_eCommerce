@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iuh.edu.fit.BEJewelry.Architecture.domain.request.ReqLoginDTO;
 
+import jakarta.validation.Valid;
+
 @RestController
 public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
@@ -20,7 +22,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ReqLoginDTO> login(@RequestBody ReqLoginDTO loginDTO) {
+    public ResponseEntity<ReqLoginDTO> login(@Valid @RequestBody ReqLoginDTO loginDTO) {
 
         // Nạp input gồm username/password vào Security
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(

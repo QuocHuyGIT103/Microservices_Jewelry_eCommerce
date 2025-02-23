@@ -24,6 +24,10 @@ public class UserDetailsCustom implements UserDetailsService {
         com.iuh.edu.fit.BEJewelry.Architecture.domain.User user = this.userService
                 .handleGetUserByUserName(username);
 
+        if (user == null) {
+            throw new UsernameNotFoundException("UserName/Password không hợp lệ");
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
