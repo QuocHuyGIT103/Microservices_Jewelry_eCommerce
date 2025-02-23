@@ -32,7 +32,8 @@ public class AuthController {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 loginDTO.getUsername(), loginDTO.getPassword());
 
-        // xác thực người dùng => cần viết hàm loadUserByUsername
+        // xác thực người dùng => cần viết hàm loadUserByUsername(khi sai sẽ handle
+        // exception BadCreadential bên globalException)
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         // Create a token

@@ -18,10 +18,12 @@ import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {
+
+    // xử lý exception khi login sai username và password
     @ExceptionHandler(value = {
             UsernameNotFoundException.class,
             BadCredentialsException.class,
-            // IdInvalidException.class
+            IdInvalidException.class
     })
     public ResponseEntity<RestResponse<Object>> handleIdException(Exception ex) {
         RestResponse<Object> res = new RestResponse<Object>();
@@ -42,6 +44,7 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
+    // xử lý exception khi validate dữ liệu login
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<RestResponse<Object>> validationError(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
