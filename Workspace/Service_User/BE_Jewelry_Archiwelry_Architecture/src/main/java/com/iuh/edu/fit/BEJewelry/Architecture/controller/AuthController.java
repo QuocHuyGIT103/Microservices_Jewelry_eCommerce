@@ -10,19 +10,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.iuh.edu.fit.BEJewelry.Architecture.domain.request.ReqLoginDTO;
+import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.ResLoginDTO;
+import com.iuh.edu.fit.BEJewelry.Architecture.util.SecurityUtil;
 
 import jakarta.validation.Valid;
 
 @RestController
 public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final SecurityUtil securityUtil;
 
-    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder) {
+    public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtil securityUtil) {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
+        this.securityUtil = securityUtil;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ReqLoginDTO> login(@Valid @RequestBody ReqLoginDTO loginDTO) {
+    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO loginDTO) {
 
         // Nạp input gồm username/password vào Security
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
@@ -31,9 +35,14 @@ public class AuthController {
         // xác thực người dùng => cần viết hàm loadUserByUsername
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        // nạp thông tin (nếu xử lý thành công) vào SecurityContext
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // Create a token
+        String access_token = this.securityUtil.createToken(authentication);
+        ResLoginDTO res = new ResLoginDTO();
+        res.setAccessToken(access_token);
 
-        return ResponseEntity.ok().body(loginDTO);
+        // nạp thông tin (nếu xử lý thành công) vào SecurityContext
+        // SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return ResponseEntity.ok().body(res);
     }
 }
