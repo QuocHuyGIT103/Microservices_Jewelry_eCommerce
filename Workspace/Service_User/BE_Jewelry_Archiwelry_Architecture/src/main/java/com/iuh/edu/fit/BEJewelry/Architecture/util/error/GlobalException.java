@@ -33,6 +33,7 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
+    // xử lý exception khi không tìm thấy resource
     @ExceptionHandler(value = {
             NoResourceFoundException.class,
     })
