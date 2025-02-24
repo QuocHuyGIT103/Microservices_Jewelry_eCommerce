@@ -1,5 +1,7 @@
 package com.iuh.edu.fit.BEJewelry.Architecture.domain;
 
+import java.time.Instant;
+
 import com.iuh.edu.fit.BEJewelry.Architecture.util.constant.GenderEnum;
 
 import jakarta.persistence.Entity;
@@ -36,5 +38,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
     private String address;
+    private String refreshToken;
+    private Instant createdAt;
+    private Instant updatedAt;
+    private String createdBy;
+    private String updatedBy;
 
 }
