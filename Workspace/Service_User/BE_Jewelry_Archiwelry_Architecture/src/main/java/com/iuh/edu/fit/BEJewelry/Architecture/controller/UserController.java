@@ -1,6 +1,9 @@
 package com.iuh.edu.fit.BEJewelry.Architecture.controller;
 
 import java.util.List;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,9 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.iuh.edu.fit.BEJewelry.Architecture.domain.User;
 import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.ResCreateUserDTO;
+import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.ResUpdateUserDTO;
+import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.ResUserDTO;
+import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.ResultPaginationDTO;
 import com.iuh.edu.fit.BEJewelry.Architecture.service.UserService;
 import com.iuh.edu.fit.BEJewelry.Architecture.util.annotation.ApiMessage;
 import com.iuh.edu.fit.BEJewelry.Architecture.util.error.IdInvalidException;
+import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
 
@@ -50,7 +57,7 @@ public class UserController {
 
     @DeleteMapping("/users/{id}")
     @ApiMessage("Delete a user")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") long id) throws IdInvalidException {
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") long id) throws IdInvalidException {
         User currentUser = this.userService.fetchUserById(id);
         if (currentUser == null) {
             throw new IdInvalidException("User với id = " + id + " không tồn tại");
@@ -63,30 +70,30 @@ public class UserController {
     // fetch user by id
     @GetMapping("/users/{id}")
     @ApiMessage("fetch user by id")
-    public ResponseEntity<User> getUserById(@PathVariable("id") long id) throws IdInvalidException {
-
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") long id) throws IdInvalidException {
         User fetchUser = this.userService.fetchUserById(id);
         if (fetchUser == null) {
             throw new IdInvalidException("User với id = " + id + " không tồn tại");
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(fetchUser);
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.convertToResUserDTO(fetchUser));
     }
 
     // fetch all users
     @GetMapping("/users")
     @ApiMessage("Fetches all users")
-    public ResponseEntity<List<User>> getAllUser() {
-        return ResponseEntity.status(HttpStatus.OK).body(this.userService.fetchAllUser());
+    public ResponseEntity<ResultPaginationDTO> getAllUser(@Filter Specification<User> spec,
+            Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.fetchAllUser(spec, pageable));
     }
 
     @PutMapping("/users")
     @ApiMessage("Update a user")
-    public ResponseEntity<User> updateUser(@RequestBody User user) throws IdInvalidException {
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
         User updateUser = this.userService.handleUpdateUser(user);
         if (updateUser == null) {
             throw new IdInvalidException("User với id = " + user.getId() + " không tồn tại");
         }
-        return ResponseEntity.ok(updateUser);
+        return ResponseEntity.ok(this.userService.convertToResUpdateUserDTO(updateUser));
     }
 }

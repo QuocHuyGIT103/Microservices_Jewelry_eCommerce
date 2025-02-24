@@ -19,7 +19,8 @@ import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.RestResponse;
 @RestControllerAdvice
 public class GlobalException {
 
-    // xử lý exception khi login sai username và password
+    // xử lý exception khi login sai username và password hoặc id không hợp lệ và
+    // email không tồn tại
     @ExceptionHandler(value = {
             UsernameNotFoundException.class,
             BadCredentialsException.class,
@@ -33,7 +34,7 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
-    // xử lý exception khi không tìm thấy resource
+    // xử lý exception khi không tìm thấy resource 404
     @ExceptionHandler(value = {
             NoResourceFoundException.class,
     })
