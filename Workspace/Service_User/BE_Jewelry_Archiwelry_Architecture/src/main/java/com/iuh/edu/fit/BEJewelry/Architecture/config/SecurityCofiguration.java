@@ -50,7 +50,8 @@ public class SecurityCofiguration {
                                 .requestMatchers("/", "/api/auth/login").permitAll()
                                 .anyRequest().authenticated())
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-                        .authenticationEntryPoint(customAuthenticationEntryPoint))// xử lý khi gửi token sai
+                        .authenticationEntryPoint(customAuthenticationEntryPoint))// xử lý khi gửi token sai(chạy qua
+                                                                                  // BearerFilter)
                 .exceptionHandling(
                         exceptions -> exceptions
                                 .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) // 401
