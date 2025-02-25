@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import com.iuh.edu.fit.BEJewelry.Architecture.domain.request.ReqLoginDTO;
 import com.iuh.edu.fit.BEJewelry.Architecture.domain.response.ResLoginDTO;
 import com.iuh.edu.fit.BEJewelry.Architecture.service.UserService;
 import com.iuh.edu.fit.BEJewelry.Architecture.util.SecurityUtil;
+import com.iuh.edu.fit.BEJewelry.Architecture.util.annotation.ApiMessage;
+
 import jakarta.validation.Valid;
 
 @RestController
@@ -37,7 +40,7 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO loginDTO) {
 
         // Nạp input gồm username/password vào Security
@@ -48,8 +51,8 @@ public class AuthController {
         // exception BadCreadential bên globalException)
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        // Create a token
-        String access_token = this.securityUtil.createAccessToken(authentication);
+        // nạp thông tin (nếu xử lý thành công) vào SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResLoginDTO res = new ResLoginDTO();
         User currentUserDB = this.userService.handleGetUserByUserName(loginDTO.getUsername());
@@ -60,6 +63,9 @@ public class AuthController {
                     currentUserDB.getName());
             res.setUser(userLogin);
         }
+
+        // Create a token
+        String access_token = this.securityUtil.createAccessToken(authentication, res.getUser());
 
         res.setAccessToken(access_token);
 
@@ -79,9 +85,25 @@ public class AuthController {
                 .maxAge(refreshTokenExpiration)
                 .build();
 
-        // nạp thông tin (nếu xử lý thành công) vào SecurityContext
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, resCookies.toString()).body(res);
+    }
+
+    // hàm trả về user khi đã login thành công
+    @GetMapping("/auth/account")
+    @ApiMessage("fetch account")
+    public ResponseEntity<ResLoginDTO.UserLogin> getAccount() {
+        String email = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
+        User currentUserDB = this.userService.handleGetUserByUserName(email);
+        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+        if (currentUserDB != null) {
+            userLogin.setId(currentUserDB.getId());
+            userLogin.setEmail(currentUserDB.getEmail());
+            userLogin.setName(currentUserDB.getName());
+        }
+
+        return ResponseEntity.ok().body(userLogin);
     }
 }
